@@ -13,6 +13,6 @@ export declare type TableToJsonOptions = {
     headings?: string[] | null;
     containsClasses?: string[] | null;
     limitrows?: number | null;
-    got?: any;
+    fetch?: any;
 };
 export declare type CallbackFunction = (conversionResult: any) => any;

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const cheerio = require("cheerio");
-const got_1 = require("got");
+const node_fetch_1 = require("node-fetch");
 class Tabletojson {
     static convert(html, options = {
         useFirstRowForHeadings: false,
@@ -168,39 +168,39 @@ class Tabletojson {
     static async convertUrl(url, callbackFunctionOrOptions, callbackFunction) {
         let options;
         let callback = null;
-        let gotOptions;
+        let fetchOptions;
         if (callbackFunction &&
             typeof callbackFunction === 'function' &&
             typeof callbackFunctionOrOptions === 'object') {
             options = callbackFunctionOrOptions;
-            gotOptions = options.got || {};
+            fetchOptions = options.fetch || {};
             callback = callbackFunction;
-            const result = await got_1.default(url, gotOptions);
-            const resultMimetype = result.headers['content-type'];
+            const result = await node_fetch_1.default(url, fetchOptions);
+            const resultMimetype = result.headers.get('content-type');
             if (resultMimetype && !resultMimetype.includes('text/')) {
                 throw new Error('Tabletojson can just handle text/** mimetypes');
             }
-            return callback.call(this, Tabletojson.convert(result.body, options));
+            return callback.call(this, Tabletojson.convert(await result.text(), options));
         }
         else if (typeof callbackFunctionOrOptions === 'function') {
             callback = callbackFunctionOrOptions;
-            const result = await got_1.default(url);
-            const resultMimetype = result.headers['content-type'];
+            const result = await node_fetch_1.default(url);
+            const resultMimetype = result.headers.get('content-type');
             if (resultMimetype && !resultMimetype.includes('text/')) {
                 throw new Error('Tabletojson can just handle text/** mimetypes');
             }
-            return callback.call(this, Tabletojson.convert(result.body));
+            return callback.call(this, Tabletojson.convert(await result.text()));
         }
         else {
             options = callbackFunctionOrOptions || {};
-            gotOptions = options.got || {};
-            gotOptions.resolveBodyOnly = true;
-            const result = await got_1.default(url);
-            const resultMimetype = result.headers['content-type'];
+            fetchOptions = options.fetch || {};
+            fetchOptions.resolveBodyOnly = true;
+            const result = await node_fetch_1.default(url);
+            const resultMimetype = result.headers.get('content-type');
             if (resultMimetype && !resultMimetype.includes('text/')) {
                 throw new Error('Tabletojson can just handle text/** mimetypes');
             }
-            return Tabletojson.convert(result.body, options);
+            return Tabletojson.convert(await result.text(), options);
         }
     }
 }
